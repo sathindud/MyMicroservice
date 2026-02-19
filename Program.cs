@@ -21,13 +21,20 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
-// --- 2. Configure the HTTP request pipeline. ---
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// --- 2. Configure the HTTP request pipeline. ---{
+app.UseSwagger();
+app.UseSwaggerUI();
+
 // -------
 app.MapControllers(); // <--- THIS WAS MISSING!
+
+// --- AUTO-CREATE DATABASE ON STARTUP ---
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    // This creates the app.db file if it's missing
+    db.Database.EnsureCreated();
+}
+// ---------------------------------------
 
 app.Run();
